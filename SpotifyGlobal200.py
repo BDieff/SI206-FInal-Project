@@ -83,8 +83,10 @@ def setUpArtistDatabase(data, cur, conn):
     # song_id (datatype: INTEGER)
     """
     cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Artist (artist_id INTEGER PRIMARY KEY, Artist TEXT)")
-    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Song (song_rank INTEGER PRIMARY KEY, Song TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Song (song_id INTEGER PRIMARY KEY AUTOINCREMENT, song_rank INTEGER, Song TEXT)")
     
+    # COUNT FOR SONG TABLE:
+    # AUTO INCREMENT INTEGER 
     count = 0
     for item in data[0:25]:
         count += 1 
@@ -103,11 +105,11 @@ def setUpArtistDatabase(data, cur, conn):
 
         cur.execute(
             """
-            INSERT OR IGNORE INTO SpotifyGlobal200_Song (song_rank, Song)
-            VALUES (?, ?)
+            INSERT OR IGNORE INTO SpotifyGlobal200_Song (song_id, song_rank, Song)
+            VALUES (?, ?, ?)
             """, 
 
-            (count, song)
+            (count, count, song)
         )
 
     results = cur.fetchall()
@@ -115,6 +117,14 @@ def setUpArtistDatabase(data, cur, conn):
     # A FEW ARTISTS IN THE TABLE MULTIPLE TIMES W DIFFERENT SONGS?
 
 def getCountryTopSongRank(data, rank, cur, conn):
+    """
+    This function takes in the 'test_spotify_api_db.db', song rank of 1, the database cursor, 
+    and the database connection. It selects the country's name, the country's top song rank, and the country's
+    top song name. The function returns a LIST OF TUPLES. 
+    
+    Each tuple contains (the COUNTRY, country's top song RANK, the country's top SONG NAME).
+
+    """
     cur.execute(
         """
         SELECT country_ids.country, top_songs.rank, top_songs.name 
@@ -128,14 +138,39 @@ def getCountryTopSongRank(data, rank, cur, conn):
     )
     
     results = cur.fetchall()
-    print(results)
+    #print(results)
+    return results 
+
+def getCountrySpotifyRank(data, cur, conn):
+    """
+    This function takes in the 'test_spotify_api_db.db', the database cursor, 
+    and the database connection. It selects the country's name, the country's top song rank, and the country's
+    top song name, and the song's rank on the Spotify Global 200 Chart. The function returns a LIST OF TUPLES. 
+    
+    Each tuple contains (COUNTRY, country's top song RANK, top SONG NAME, country's top song RANK on Spotify200).
+
+    """
+
+    cur.execute(
+        """
+        SELECT country_ids.country, top_songs.rank, top_songs.name, SpotifyGlobal200_Song.rank 
+        FROM country_ids
+        JOIN top_songs ON country_ids.id = top_songs.country_id
+        JOIN SpotifyGlobal200_Song ON top_songs.name = SpotifyGlobal200_Song.Song
+        """
+
+    )
+    results = cur.fetchall()
+    #print(results)
+    return results
+
 
 def main():
     globaldata = get_global("SpotifyGlobal_0324.html")
     #get_global("SpotifyGlobal_0324.html")
     cur, conn = setUpDatabase('SpotifyGlobal200.db')
     setUpArtistDatabase(globaldata, cur, conn)
-    getCountryTopSongRank(test_spotify_api_db.db, 1, cur, conn)
+    #etCountryTopSongRank(test_spotify_api_db.db, 1, cur, conn)
 
 if __name__ == '__main__':
     main()
