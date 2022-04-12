@@ -19,8 +19,9 @@ def avg_temp_hbar(data_dict, songs_per_country):
     fig, ax = plt.subplots()
     ax.barh(countries, average_tempo, color='green')
     ax.autoscale_view()
-    ax.set(ylabel='Country', xlabel='Tempo', title=f'Average tempo by country for top {songs_per_country} streamed songs on Spotify (March 18th to 25th)')
+    ax.set(ylabel='Country', xlabel='Tempo', title=f'Average Tempo by Country for Top {songs_per_country} Streamed Songs on Spotify (March 18th to 25th)')
     fig.savefig('tempo_hbar.png')
+    plt.tight_layout()
     plt.show()
 
 class TestVisuals(unittest.TestCase):
