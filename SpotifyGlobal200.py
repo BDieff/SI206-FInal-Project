@@ -42,73 +42,83 @@ def get_global(filename):
         #print(item)
         artisttag = item.find('span', None)
         artist = artisttag.text.strip("by ")
-        artistlst.append(artist)
+        if ',' in artist:
+            single = artist.split(',')
+            artistlst.append(single)
+        else:
+            artistlst.append(artist)
     #print(artistlst)
-
-    spotify_tuples = []
+        
+    spotify_data = []
     for i in range(0, len(songlst)):
-        artist_song = (artistlst[i], songlst[i])
-        spotify_tuples.append(artist_song) 
-        #print(spotify_tuples) 
+        artist_song = {}
+        artist = artistlst[i]
+        song = songlst[i]
+        artist_song['artists'] = artist
+        artist_song['song'] = song
+        # artist_song = (artistlst[i], songlst[i])
+        # spotify_tuples.append(artist_song) 
+        spotify_data.append(artist_song)
+    #print(spotify_data)
     return spotify_tuples         
 
-def setUpDatabase(db_name):
-    """ 
-    Sets up the parameters for making an SQL query to a database. 
-    """
+# def setUpDatabase(db_name):
+#     """ 
+#     Sets up the parameters for making an SQL query to a database. 
+#     """
 
-    path = os.path.dirname(os.path.abspath(__file__))
-    conn = sqlite3.connect(path+'/'+db_name)
-    cur = conn.cursor()
-    return cur, conn
+#     path = os.path.dirname(os.path.abspath(__file__))
+#     conn = sqlite3.connect(path+'/'+db_name)
+#     cur = conn.cursor()
+#     return cur, conn
   
-def setUpArtistDatabase(data, cur, conn):
-    """
-    Load all data from the function 'get_global' into a table called 'SpotifyGlobal200'
-    giving the artist and song name a unique ID with the following columns:
+# def setUpArtistDatabase(data, cur, conn):
+#     """
+#     Load all data from the function 'get_global' into a table called 'SpotifyGlobal200'
+#     giving the artist and song name a unique ID with the following columns:
     
-    # Artist (datatype: TEXT and PRIMARY KEY)
-    # artist_id (datatype: INTEGER)
-    # Song (datatype: TEXT)
-    # song_id (datatype: INTEGER)
-    """
+#     # Artist (datatype: TEXT and PRIMARY KEY)
+#     # artist_id (datatype: INTEGER)
+#     # Song (datatype: TEXT)
+#     # song_id (datatype: INTEGER)
+#     """
+#     pass
+#     cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Artist (artist_id INTEGER PRIMARY KEY, Artist TEXT)")
+#     cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Song (song_id INTEGER PRIMARY KEY, Song TEXT)")
     
-    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Artist (artist_id INTEGER PRIMARY KEY, Artist TEXT)")
-    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Song (song_id INTEGER PRIMARY KEY, Song TEXT)")
-    
-    count = 0
-    for item in data[0:25]:
-        count += 1
-        artist = item[0]
-        song = item[1]
+#     count = 0
+#     for item in data[0:25]:
+#         count += 1
+#         artist = item[0]
+#         song = item[1]
 
-        cur.execute(
-            """
-            INSERT OR IGNORE INTO SpotifyGlobal200_Artist (artist_id, Artist)
-            VALUES (?, ?)
-            """, 
+#         cur.execute(
+#             """
+#             INSERT OR IGNORE INTO SpotifyGlobal200_Artist (artist_id, Artist)
+#             VALUES (?, ?)
+#             """, 
 
-            (count, artist)
-        )
+#             (count, artist)
+#         )
 
-        cur.execute(
-            """
-            INSERT OR IGNORE INTO SpotifyGlobal200_Song (song_id, Song)
-            VALUES (?, ?)
-            """, 
+#         cur.execute(
+#             """
+#             INSERT OR IGNORE INTO SpotifyGlobal200_Song (song_id, Song)
+#             VALUES (?, ?)
+#             """, 
 
-            (count, song)
-        )
+#             (count, song)
+#         )
 
 
-    results = cur.fetchall()
-    conn.commit()
-    # A FEW ARTISTS IN THE TABLE MULTIPLE TIMES W DIFFERENT SONGS?
+#     results = cur.fetchall()
+#     conn.commit()
+#     # A FEW ARTISTS IN THE TABLE MULTIPLE TIMES W DIFFERENT SONGS?
 
 def main():
-    globaldata = get_global("SpotifyGlobal_0324.html")
-    cur, conn = setUpDatabase('SpotifyGlobal200.db')
-    setUpArtistDatabase(globaldata, cur, conn)
+    get_global("SpotifyGlobal_0324.html")
+    #cur, conn = setUpDatabase('SpotifyGlobal200.db')
+    #setUpArtistDatabase(globaldata, cur, conn)
 
 if __name__ == '__main__':
     main()
