@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 class SpotifyManager():
 
-    def __init__(self, db_name='song_stats_by_country.db'):
+    def __init__(self, db_name='test_spotify_api.db', json_file='country_top_charts_test.json'):
         # api key information 
         CLIENT_ID = 'c126e9db4b244678b224ad4d6ba4477c'
         CLIENT_SECRET = '713cc4c51d1042aeb6e08d58791b5fac'
@@ -18,7 +18,7 @@ class SpotifyManager():
         self.spotify = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(CLIENT_ID, CLIENT_SECRET))
         # get charts ids by country
         self.change_curdir()
-        with open('country_top_charts.json', 'r') as json_handler:
+        with open(json_file, 'r') as json_handler:
             self.chart_ids = json.load(json_handler)
         # connect to sqlite db
         self.conn = sqlite3.connect(db_name)
@@ -109,20 +109,63 @@ class SpotifyManager():
             avg_tempo_by_country[country_name] = avg_tempo
         return avg_tempo_by_country, num_songs
 
+    def get_total_stream_time_for_top(self):
+        country_ids = self.cur.execute('SELECT id, country FROM country_ids').fetchall()
+        total_streams_by_country = {}
+        num_songs = 0
+        for country in country_ids:
+            country_name = country[1]
+            country_id = country[0]
+            song_list = self.cur.execute(f'SELECT (streams*length)/60 FROM top_songs WHERE country_id = {country_id}').fetchall()
+            num_songs = len(song_list)
+            total_dur = 0
+            for song in song_list:
+                total_dur += song[0]
+            total_streams_by_country[country_name] = total_dur
+        return total_streams_by_country, num_songs
+
 class testManager(unittest.TestCase):
 
+    isSetUp = False
+
     def setUp(self):
-        self.testDB = SpotifyManager('test_spotify_api_db')
+        if not self.isSetUp:
+            self.setupClass()
+            self.__class__.isSetUp = True
+
+    def setupClass(self):
+        try:
+            os.remove('test_spotify_api.db')
+        except:
+            pass
+        self.__class__.testDB = SpotifyManager()
+        self.testDB.get_songs()
+        self.__class__.conn = sqlite3.connect('test_spotify_api.db')
+        self.__class__.cur = self.conn.cursor()
 
     def testGetSongs(self):
-        for i in range(0,5):
-            self.testDB.get_songs()
-        conn = sqlite3.connect('test_spotify_api_db')
-        cur = conn.cursor()
         for i in range(1,6):
-            max_rank = cur.execute(f'SELECT MAX(rank) FROM top_songs WHERE country_id = {i}').fetchall()[0][0]
-            self.assertEqual(max_rank, 25)
-        os.remove('test_spotify_api_db')
+            max_rank = self.cur.execute(f'SELECT MAX(rank) FROM top_songs WHERE country_id = {i}').fetchall()[0][0]
+            self.assertEqual(max_rank, 5)
+
+    def testGetAvgTempoByCountry(self):
+        avg_temp_by_country, num_songs = self.testDB.get_avg_tempo_by_country()
+        self.assertEqual(num_songs, 5)
+        self.assertAlmostEqual(avg_temp_by_country['US'], 148.3486, 4)
+        self.assertAlmostEqual(avg_temp_by_country['UK'], 120.7402, 4)
+        self.assertAlmostEqual(avg_temp_by_country['Nigeria'], 114.6592, 4)
+        self.assertAlmostEqual(avg_temp_by_country['Mexico'], 143.7192, 4)
+        self.assertAlmostEqual(avg_temp_by_country['India'], 101.4396, 4)    
+
+    def testGetTotalStreamTimeForTop(self):
+        dur_by_country, num_songs = self.testDB.get_total_stream_time_for_top()
+        self.assertEqual(num_songs, 5)
+        self.assertAlmostEqual(dur_by_country['US'], 71739193.829, 3)
+        self.assertAlmostEqual(dur_by_country['UK'], 31311652.982, 3)
+        self.assertAlmostEqual(dur_by_country['Nigeria'], 1674480.039, 3 )
+        self.assertAlmostEqual(dur_by_country['Mexico'], 61257668.254, 3)
+        self.assertAlmostEqual(dur_by_country['India'], 43229876.402, 3) 
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
+    os.remove('test_spotify_api.db')
