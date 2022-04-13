@@ -168,8 +168,9 @@ def getCountrySpotifyRank(data, cur, conn):
 def getMostPopularArtist(data, cur, conn):
     """
     This function takes in the 'test_spotify_api_db.db', the database cursor, 
-    and the database connection to find the most popular artist from each country. It selects the country's name, 
-    the country's top song name, and the song's artist on the Spotify Global 200 Chart. The function returns a LIST OF TUPLES. 
+    and the database connection to find the rank of the most popular artist's song from each country. It selects 
+    the country's name, the country's top song name, the song's rank, and the song's artist on the Spotify Global 200 Chart. 
+    The function returns a LIST OF TUPLES. 
     
     Each tuple contains (COUNTRY, top SONG NAME, song's artist on Spotify200).
 
@@ -192,7 +193,9 @@ def main():
     #get_global("SpotifyGlobal_0324.html")
     cur, conn = setUpDatabase('SpotifyGlobal200.db')
     setUpArtistDatabase(globaldata, cur, conn)
-    #etCountryTopSongRank(test_spotify_api_db.db, 1, cur, conn)
+    #getCountryTopSongRank(test_spotify_api_db.db, 1, cur, conn)
+    #getCountrySpotifyRank(data, cur, conn)
+    #getMostPopularArtist(data, cur, conn)
 
 if __name__ == '__main__':
     main()
