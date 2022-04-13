@@ -82,8 +82,8 @@ def setUpArtistDatabase(data, cur, conn):
     # Song (datatype: TEXT)
     # song_id (datatype: INTEGER)
     """
-    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Artist (artist_id INTEGER PRIMARY KEY, Artist TEXT)")
-    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Song (song_id INTEGER PRIMARY KEY AUTOINCREMENT, song_rank INTEGER, Song TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Artist (artist_id INTEGER PRIMARY KEY, artist TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Song (song_id INTEGER PRIMARY KEY AUTOINCREMENT, song_rank INTEGER, song_name TEXT)")
     
     # COUNT FOR SONG TABLE:
     # AUTO INCREMENT INTEGER 
@@ -96,7 +96,7 @@ def setUpArtistDatabase(data, cur, conn):
 
         cur.execute(
             """
-            INSERT OR IGNORE INTO SpotifyGlobal200_Artist (artist_id, Artist)
+            INSERT OR IGNORE INTO SpotifyGlobal200_Artist (artist_id, artist)
             VALUES (?, ?)
             """, 
 
@@ -105,7 +105,7 @@ def setUpArtistDatabase(data, cur, conn):
 
         cur.execute(
             """
-            INSERT OR IGNORE INTO SpotifyGlobal200_Song (song_id, song_rank, Song)
+            INSERT OR IGNORE INTO SpotifyGlobal200_Song (song_id, song_rank, song_name)
             VALUES (?, ?, ?)
             """, 
 
@@ -156,7 +156,7 @@ def getCountrySpotifyRank(data, cur, conn):
         SELECT country_ids.country, top_songs.rank, top_songs.name, SpotifyGlobal200_Song.rank 
         FROM country_ids
         JOIN top_songs ON country_ids.id = top_songs.country_id
-        JOIN SpotifyGlobal200_Song ON top_songs.name = SpotifyGlobal200_Song.Song
+        JOIN SpotifyGlobal200_Song ON top_songs.name = SpotifyGlobal200_Song.song_name
         """
 
     )
