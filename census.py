@@ -39,7 +39,7 @@ def json_to_db(data,cur,conn):
     conn.commit()
 
 def data_for_one_country(country, cur, conn):
-    cur.execute(f"SELECT population FROM census_data WHERE name = \"{country}\"")
+    cur.execute(f"SELECT country_id FROM census_data WHERE name = \"{country}\"")
     res = cur.fetchall()
     conn.commit()
     out = [item for t in res for item in t]
