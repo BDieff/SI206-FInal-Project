@@ -38,11 +38,23 @@ def json_to_db(data,cur,conn):
         cur.execute("INSERT OR IGNORE INTO census_data (country_id, name,  population, crude_birth_rate, crude_death_rate, life_expectancy, area) VALUES (?,?,?,?,?,?,?)", (var_id, var_name,var_population,var_crude_birth_rate,var_crude_death_rate,var_life_expectancy,area))
     conn.commit()
 
+def data_for_one_country(country, cur, conn):
+    cur.execute(f"SELECT population FROM census_data WHERE name = \"{country}\"")
+    res = cur.fetchall()
+    conn.commit()
+    out = [item for t in res for item in t]
+    return out
+
+
+
 def main():
     y,z = setup_DB("census_data")
     x = get_data()
     create_table(y,z)
     json_to_db(x,y,z)
+    country_list = ["United States", "United Kingdom", "Nigeria", "Mexico", "India"]
+    for country in country_list:
+        data_for_one_country(country, y,z)
     
 
 if __name__ == "__main__":
