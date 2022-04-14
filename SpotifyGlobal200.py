@@ -12,21 +12,29 @@ import matplotlib.pyplot as plt
 import numpy as np
 from textwrap import wrap
 import datetime
+
+def getLastestData():
+    url = "https://spotifycharts.com/regional/global/weekly/"
+    resp = requests.get(url, headers = {'User-Agent' : 'Mozilla/5.0'})
+    data = BeautifulSoup(resp.text, 'html.parser')
+    #print(data)
+    return data
     
-def get_global(filename):
+def get_global(url_data):
     """
-    Write a function that creates a BeautifulSoup object on "SpotifyGlobal_0324.html". Parse
-    through the object and return a list of tuples containing the artist name and their associated song. 
+    Write a function that creates a BeautifulSoup object on an HTML file of the latest 
+    data from the Spotify Global 200 chart. Parse through the object and return a list 
+    of tuples containing the artist name and their associated song. 
 
     [('Artist 1', 'Song 1'), ('Artist 2', 'Song 2')...]
     """
-    source_dir = os.path.dirname(__file__) 
-    full_path = os.path.join(source_dir, filename)
-    file_object = open(full_path, 'r')
-    data = file_object.read()
-    file_object.close()
- 
-    soup = BeautifulSoup(data, 'html.parser')
+    # source_dir = os.path.dirname(__file__) 
+    # full_path = os.path.join(source_dir, filename)
+    # file_object = open(full_path, 'r')
+    # data = file_object.read()
+    # file_object.close()
+    
+    soup = BeautifulSoup(url_data, 'html.parser')
     
     songlst = []
     song_data = soup.find_all('strong', None)
@@ -102,11 +110,14 @@ def setUpArtistDatabase(data, cur, conn):
 
             (main_artist,)
         )
+
         artist_id = cur.execute(
             f'''
-            SELECT id FROM SpotifyGlobal200_Artist WHERE artist = "{main_artist}"
+            SELECT id FROM SpotifyGlobal200_Artist 
+            WHERE artist = "{main_artist}"
             '''
         ).fetchone()[0]
+        
         cur.execute(
             """
             INSERT OR IGNORE INTO SpotifyGlobal200_Song (artist_id, song_rank, song_name)
@@ -197,10 +208,14 @@ def getMostPopularArtist(data, cur, conn):
     return results
 
 def main():
-    globaldata = get_global("SpotifyGlobal_0324.html")
-    #get_global("SpotifyGlobal_0324.html")
+    spotify_data = getLastestData()
+    globaldata = get_global(spotify_data)
     cur, conn = setUpDatabase('final_project.db')
     setUpArtistDatabase(globaldata, cur, conn)
+    #url = "https://spotifycharts.com/regional/global/weekly/"
+    #globaldata = get_global(url)
+    #get_global("Latest_Spotify200.html")
+    #get_global("SpotifyGlobal_0324.html")
     #getCountryTopSongRank(test_spotify_api_db.db, 1, cur, conn)
     #getCountrySpotifyRank(data, cur, conn)
     #getMostPopularArtist(data, cur, conn)
@@ -209,3 +224,7 @@ def main():
 if __name__ == '__main__':
     main()
     unittest.main(verbosity=2)
+
+
+# QUESTION --> HOW TO MAKE REQUEST TO URL TO GET THE HMTL DATA
+# CURRENTLY HAVE ACTUAL HTML FILE AND READING FROM THE FILE INSTEAD OF MAKING A REQUEST
