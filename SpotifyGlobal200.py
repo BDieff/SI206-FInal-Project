@@ -82,8 +82,8 @@ def setUpArtistDatabase(data, cur, conn):
     # Song (datatype: TEXT)
     # song_id (datatype: INTEGER)
     """
-    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Artist (id INTEGER PRIMARY KEY, artist TEXT)")
-    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Song (song_id INTEGER PRIMARY KEY AUTOINCREMENT, artist_id INTEGER, song_rank INTEGER, song_name TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Artist (id INTEGER PRIMARY KEY UNIQUE, artist TEXT UNIQUE)")
+    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Song (song_id INTEGER PRIMARY KEY UNIQUE, artist_id INTEGER, song_rank INTEGER UNIQUE, song_name TEXT UNIQUE)")
     
     # COUNT FOR SONG TABLE:
     # AUTO INCREMENT INTEGER 
@@ -96,20 +96,24 @@ def setUpArtistDatabase(data, cur, conn):
 
         cur.execute(
             """
-            INSERT OR IGNORE INTO SpotifyGlobal200_Artist (id, artist)
-            VALUES (?, ?)
+            INSERT OR IGNORE INTO SpotifyGlobal200_Artist (artist)
+            VALUES (?)
             """, 
 
-            (count, main_artist)
+            (main_artist,)
         )
-
+        artist_id = cur.execute(
+            f'''
+            SELECT id FROM SpotifyGlobal200_Artist WHERE artist = "{main_artist}"
+            '''
+        ).fetchone()[0]
         cur.execute(
             """
-            INSERT OR IGNORE INTO SpotifyGlobal200_Song (song_id, artist_id, song_rank, song_name)
-            VALUES (?, ?, ?, ?)
+            INSERT OR IGNORE INTO SpotifyGlobal200_Song (artist_id, song_rank, song_name)
+            VALUES (?, ?, ?)
             """, 
 
-            (count, count, count, song)
+            (artist_id, count, song)
         )
 
     results = cur.fetchall()

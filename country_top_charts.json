@@ -1,22 +1,22 @@
 {
     "Mexico":{
        "playlist_id":"37i9dQZEVXbKUoIkUXteF6",
-       "charts_url":"https://spotifycharts.com/regional/mx/weekly/2022-03-18--2022-03-25"
+       "charts_url":"https://spotifycharts.com/regional/mx/weekly/"
     },
-    "US":{
+    "United States":{
        "playlist_id":"37i9dQZEVXbLp5XoPON0wI",
-       "charts_url":"https://spotifycharts.com/regional/us/weekly/2022-03-18--2022-03-25"
+       "charts_url":"https://spotifycharts.com/regional/us/weekly/"
     },
-    "UK":{
+    "United Kingdom":{
        "playlist_id":"37i9dQZEVXbMwmF30ppw50",
-       "charts_url":"https://spotifycharts.com/regional/gb/weekly/2022-03-18--2022-03-25"
+       "charts_url":"https://spotifycharts.com/regional/gb/weekly/"
     },
     "Nigeria":{
        "playlist_id":"37i9dQZEVXbLw80jjcctV1",
-       "charts_url":"https://spotifycharts.com/regional/ng/weekly/2022-03-18--2022-03-25"
+       "charts_url":"https://spotifycharts.com/regional/ng/weekly/"
     },
     "India":{
        "playlist_id":"37i9dQZEVXbMWDif5SCBJq",
-       "charts_url":"https://spotifycharts.com/regional/in/weekly/2022-03-18--2022-03-25"
+       "charts_url":"https://spotifycharts.com/regional/in/weekly/"
     }
  }

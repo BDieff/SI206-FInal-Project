@@ -88,21 +88,15 @@ class SpotifyManager():
                 curr_rank += 1
                 id = song['track']['id']
                 name = song['track']['name']
-                name_id_in_list = self.cur.execute(f'SELECT song_id FROM SpotifyGlobal200_Song WHERE song_name = "{name}"').fetchall()
-                if len(name_id_in_list) == 0:
-                    self.cur.execute(f'INSERT INTO SpotifyGlobal200_Song (song_name) VALUES (?)', (name,))
-                    self.conn.commit()
-                    name_id = self.cur.execute(f'SELECT MAX(song_id) FROM SpotifyGlobal200_Song').fetchone()[0]
-                else:
-                    name_id = name_id_in_list[0]
+                # adds into artist table and creates id if not already there
                 artist = song['track']['artists'][0]['name']
-                artist_id_in_list = self.cur.execute(f'SELECT artist_id FROM SpotifyGlobal200_Artist WHERE artist = "{name}"').fetchall()
-                if len(artist_id_in_list) == 0:
-                    self.cur.execute(f'INSERT INTO SpotifyGlobal200_Artist (artist) VALUES (?)', (artist,))
-                    self.conn.commit()
-                    artist_id = self.cur.execute(f'SELECT MAX(id) FROM SpotifyGlobal200_Artist').fetchone()[0]
-                else:
-                    artist_id = artist_id_in_list[0]
+                self.cur.execute(f"INSERT OR IGNORE INTO SpotifyGlobal200_Artist (artist) VALUES ('{artist}')")
+                self.conn.commit()
+                artist_id = self.cur.execute(f"SELECT id FROM SpotifyGlobal200_Artist WHERE artist = '{artist}'").fetchone()[0]
+                # adds into song table and creates id if not already there
+                self.cur.execute(f"INSERT OR IGNORE INTO SpotifyGlobal200_Song (song_name, artist_id) VALUES (\'{name}\',{artist_id})")
+                self.conn.commit()
+                name_id = self.cur.execute(f"SELECT song_id FROM SpotifyGlobal200_Song WHERE song_name = \'{name}\'").fetchone()[0]
                 popularity = song['track']['popularity']
                 audio_analysis = self.spotify.audio_analysis(id)
                 length = audio_analysis['track']['duration']
