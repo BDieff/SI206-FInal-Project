@@ -48,7 +48,7 @@ class SpotifyManager():
     # create country top chart table
     def init_db_table(self):
         self.cur.execute(f'''CREATE TABLE IF NOT EXISTS top_songs (country_id INTEGER,
-            rank INTEGER, name TEXT, artist TEXT, streams INTEGER, popularity INTEGER, 
+            rank INTEGER, song_id INTEGER, artist_id INTEGER, streams INTEGER, popularity INTEGER, 
             length REAL, tempo REAL)''')
         self.conn.commit()
 
@@ -88,14 +88,28 @@ class SpotifyManager():
                 curr_rank += 1
                 id = song['track']['id']
                 name = song['track']['name']
+                name_id_in_list = self.cur.execute(f'SELECT song_id FROM SpotifyGlobal200_Song WHERE song_name = "{name}"').fetchall()
+                if len(name_id_in_list) == 0:
+                    self.cur.execute(f'INSERT INTO SpotifyGlobal200_Song (song_name) VALUES (?)', (name,))
+                    self.conn.commit()
+                    name_id = self.cur.execute(f'SELECT MAX(song_id) FROM SpotifyGlobal200_Song').fetchone()[0]
+                else:
+                    name_id = name_id_in_list[0]
                 artist = song['track']['artists'][0]['name']
+                artist_id_in_list = self.cur.execute(f'SELECT artist_id FROM SpotifyGlobal200_Artist WHERE artist = "{name}"').fetchall()
+                if len(artist_id_in_list) == 0:
+                    self.cur.execute(f'INSERT INTO SpotifyGlobal200_Artist (artist) VALUES (?)', (artist,))
+                    self.conn.commit()
+                    artist_id = self.cur.execute(f'SELECT MAX(id) FROM SpotifyGlobal200_Artist').fetchone()[0]
+                else:
+                    artist_id = artist_id_in_list[0]
                 popularity = song['track']['popularity']
                 audio_analysis = self.spotify.audio_analysis(id)
                 length = audio_analysis['track']['duration']
                 tempo = audio_analysis['track']['tempo']
                 streams = self.get_stream_count(curr_rank, chart_url)
-                self.cur.execute(f'''INSERT OR IGNORE INTO top_songs (country_id, rank, name, artist, streams, popularity, length, tempo) 
-                    VALUES (?,?,?,?,?,?,?,?)''', (country, curr_rank, name, artist, streams, popularity, length, tempo))
+                self.cur.execute(f'''INSERT OR IGNORE INTO top_songs (country_id, rank, song_id, artist_id, streams, popularity, length, tempo) 
+                    VALUES (?,?,?,?,?,?,?,?)''', (country, curr_rank, name_id, artist_id, streams, popularity, length, tempo))
             self.conn.commit()
 
     def get_avg_tempo_by_country(self, country_id_list):
