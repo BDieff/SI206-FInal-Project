@@ -26,7 +26,7 @@ def create_table(cur,conn):
 
 def json_to_db(data,cur,conn):
     item_id = 0
-    for item in data:
+    for item in data[1:]:
         var_id = item_id
         var_name = item[0]
         var_population = item[1]
@@ -43,7 +43,7 @@ def data_for_one_country(country, cur, conn):
     res = cur.fetchall()
     conn.commit()
     out = [item for t in res for item in t]
-    return out
+    print(out)
 
 
 
