@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from textwrap import wrap
 import datetime
-
+    
 def get_global(filename):
     """
     Write a function that creates a BeautifulSoup object on "SpotifyGlobal_0324.html". Parse
@@ -25,7 +25,7 @@ def get_global(filename):
     file_object = open(full_path, 'r')
     data = file_object.read()
     file_object.close()
-
+ 
     soup = BeautifulSoup(data, 'html.parser')
     
     songlst = []
@@ -82,8 +82,8 @@ def setUpArtistDatabase(data, cur, conn):
     # Song (datatype: TEXT)
     # song_id (datatype: INTEGER)
     """
-    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Artist (artist_id INTEGER PRIMARY KEY, artist TEXT)")
-    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Song (song_id INTEGER PRIMARY KEY AUTOINCREMENT, song_rank INTEGER, song_name TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Artist (id INTEGER PRIMARY KEY, artist TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Song (song_id INTEGER PRIMARY KEY AUTOINCREMENT, artist_id INTEGER, song_rank INTEGER, song_name TEXT)")
     
     # COUNT FOR SONG TABLE:
     # AUTO INCREMENT INTEGER 
@@ -96,7 +96,7 @@ def setUpArtistDatabase(data, cur, conn):
 
         cur.execute(
             """
-            INSERT OR IGNORE INTO SpotifyGlobal200_Artist (artist_id, artist)
+            INSERT OR IGNORE INTO SpotifyGlobal200_Artist (id, artist)
             VALUES (?, ?)
             """, 
 
@@ -105,22 +105,23 @@ def setUpArtistDatabase(data, cur, conn):
 
         cur.execute(
             """
-            INSERT OR IGNORE INTO SpotifyGlobal200_Song (song_id, song_rank, song_name)
-            VALUES (?, ?, ?)
+            INSERT OR IGNORE INTO SpotifyGlobal200_Song (song_id, artist_id, song_rank, song_name)
+            VALUES (?, ?, ?, ?)
             """, 
 
-            (count, count, song)
+            (count, count, count, song)
         )
 
     results = cur.fetchall()
     conn.commit()
-    # A FEW ARTISTS IN THE TABLE MULTIPLE TIMES W DIFFERENT SONGS?
 
 def getCountryTopSongRank(data, rank, cur, conn):
     """
     This function takes in the 'test_spotify_api_db.db', song rank of 1, the database cursor, 
     and the database connection. It selects the country's name, the country's top song rank, and the country's
-    top song name. The function returns a LIST OF TUPLES. 
+    top song name. 
+    
+    The function returns a LIST OF TUPLES. 
     
     Each tuple contains (the COUNTRY, country's top song RANK, the country's top SONG NAME).
 
@@ -145,7 +146,9 @@ def getCountrySpotifyRank(data, cur, conn):
     """
     This function takes in the 'test_spotify_api_db.db', the database cursor, 
     and the database connection. It selects the country's name, the country's top song rank, and the country's
-    top song name, and the song's rank on the Spotify Global 200 Chart. The function returns a LIST OF TUPLES. 
+    top song name, and the song's rank on the Spotify Global 200 Chart. 
+    
+    The function returns a LIST OF TUPLES. 
     
     Each tuple contains (COUNTRY, country's top song RANK, top SONG NAME, country's top song RANK on Spotify200).
 
@@ -170,6 +173,7 @@ def getMostPopularArtist(data, cur, conn):
     This function takes in the 'test_spotify_api_db.db', the database cursor, 
     and the database connection to find the rank of the most popular artist's song from each country. It selects 
     the country's name, the country's top song name, the song's rank, and the song's artist on the Spotify Global 200 Chart. 
+    
     The function returns a LIST OF TUPLES. 
     
     Each tuple contains (COUNTRY, top SONG NAME, song's artist on Spotify200).
@@ -197,5 +201,7 @@ def main():
     #getCountrySpotifyRank(data, cur, conn)
     #getMostPopularArtist(data, cur, conn)
 
+
 if __name__ == '__main__':
     main()
+    unittest.main(verbosity=2)
