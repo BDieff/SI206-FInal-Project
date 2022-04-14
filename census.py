@@ -7,7 +7,6 @@ from webbrowser import get
 import requests
 import unittest
 
-
 def setup_DB(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_name)
@@ -44,24 +43,17 @@ def get_country_ids(country_list, cur, conn):
     country_ids_list = []
     for country in country_list:
         cur.execute(f"SELECT country_id FROM census_data WHERE name = \"{country}\"")
-        res = cur.fetchall()
-        conn.commit()
-        out = [item for t in res for item in t]
-        country_ids_list.append(out)
-    print(country_ids_list)
+        res = cur.fetchall()[0][0]
+        country_ids_list.append(res)
+    return country_ids_list
 
 def get_country_populations(country_list, cur, conn):
     country_populations_list = []
     for country in country_list:
         cur.execute(f"SELECT population FROM census_data WHERE name = \"{country}\"")
-        res = cur.fetchall()
-        conn.commit()
-        out = [item for t in res for item in t]
-        country_populations_list.append(out)
-    print(country_populations_list)
-
-
-
+        res = cur.fetchall()[0][0]
+        country_populations_list.append(res)
+    return country_populations_list
 
 def main():
     y,z = setup_DB("census_data")

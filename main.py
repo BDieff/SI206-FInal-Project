@@ -1,5 +1,23 @@
 import visualizations
-#import census py file
-#import top charts py file
+import census
+import SpotifyGlobal200
+import spotify
+import visualizations
 
-# we will run our main from this file once all other sub-files are finished
+# final_project.db is the dtabase name when we connect with sqlite3
+
+if __name__ == '__main__':
+    # setting up db with data from census api
+    y,z = census.setup_DB('final_project.db')
+    x = census.get_data()
+    census.create_table(y,z)
+    census.json_to_db(x,y,z)
+    country_list = ["United States", "United Kingdom", "Nigeria", "Mexico", "India"]
+    country_id_list = census.get_country_ids(country_list,y,z)
+    # adding artists, songs, and top x song data from spotifycharts
+    #---code here---
+    # adding tables to db with top x song data from spotify api
+    spotify_api_mngr = spotify.SpotifyManager('final_project.db')
+    spotify_api_mngr.get_songs(country_id_list)
+    
+
