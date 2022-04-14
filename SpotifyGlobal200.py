@@ -191,7 +191,7 @@ def getMostPopularArtist(data, cur, conn):
 def main():
     globaldata = get_global("SpotifyGlobal_0324.html")
     #get_global("SpotifyGlobal_0324.html")
-    cur, conn = setUpDatabase('SpotifyGlobal200.db')
+    cur, conn = setUpDatabase('final_project.db')
     setUpArtistDatabase(globaldata, cur, conn)
     #getCountryTopSongRank(test_spotify_api_db.db, 1, cur, conn)
     #getCountrySpotifyRank(data, cur, conn)
