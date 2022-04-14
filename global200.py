@@ -11,7 +11,7 @@ import numpy as np
 import unittest
 import billboard
 
-def global200data():
+def get_global200():
     """
     Returns list of tuples formatted (song_rank, song_name, artist) from the Billboard Global 200 Chart. 
     """
@@ -52,7 +52,7 @@ def setUpArtistDatabase(chart_data, cur, conn):
     # COUNT FOR SONG TABLE:
     # AUTO INCREMENT INTEGER 
     count = 0
-    for item in chart_data[0:26]:
+    for item in chart_data[0:25]:
         count += 1 
         #print(item)
         song_rank = item[0]
@@ -164,7 +164,7 @@ def getMostPopularArtist(data, cur, conn):
     pass
 
 def main():
-    BB200data = global200data()
+    BB200data = get_global200()
     cur, conn = setUpDatabase('final_project.db')
     setUpArtistDatabase(BB200data, cur, conn)
 
