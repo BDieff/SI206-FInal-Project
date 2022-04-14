@@ -13,14 +13,17 @@ import numpy as np
 from textwrap import wrap
 import datetime
 
-def getLastestData():
-    url = "https://spotifycharts.com/regional/global/weekly/"
-    resp = requests.get(url, headers = {'User-Agent' : 'Mozilla/5.0'})
-    data = BeautifulSoup(resp.text, 'html.parser')
-    #print(data)
-    return data
+# def getLastestData():
+#     """
+#     Make a request to the Spotify Global 200 chart 'https://spotifycharts.com/regional/global/weekly/'
+#     """
+#     url = "https://spotifycharts.com/regional/global/weekly/"
+#     resp = requests.get(url, headers = {'User-Agent' : 'Mozilla/5.0'})
+#     data = BeautifulSoup(resp.text, 'html.parser')
+#     #print(data)
+#     return data
     
-def get_global(url_data):
+def get_global(url):
     """
     Write a function that creates a BeautifulSoup object on an HTML file of the latest 
     data from the Spotify Global 200 chart. Parse through the object and return a list 
@@ -34,7 +37,10 @@ def get_global(url_data):
     # data = file_object.read()
     # file_object.close()
     
-    soup = BeautifulSoup(url_data, 'html.parser')
+    #url = "https://spotifycharts.com/regional/global/weekly/"
+    resp = requests.get(url, headers = {'User-Agent' : 'Mozilla/5.0'})
+    #data = BeautifulSoup(resp.text, 'html.parser')
+    soup = BeautifulSoup(resp.text, 'html.parser')
     
     songlst = []
     song_data = soup.find_all('strong', None)
@@ -182,7 +188,6 @@ def getCountrySpotifyRank(data, cur, conn):
     #print(results)
     return results
 
-
 def getMostPopularArtist(data, cur, conn):
     """
     This function takes in the 'test_spotify_api_db.db', the database cursor, 
@@ -208,18 +213,13 @@ def getMostPopularArtist(data, cur, conn):
     return results
 
 def main():
-    spotify_data = getLastestData()
-    globaldata = get_global(spotify_data)
+    url = "https://spotifycharts.com/regional/global/weekly/"
+    globaldata = get_global(url)
     cur, conn = setUpDatabase('final_project.db')
     setUpArtistDatabase(globaldata, cur, conn)
-    #url = "https://spotifycharts.com/regional/global/weekly/"
-    #globaldata = get_global(url)
-    #get_global("Latest_Spotify200.html")
-    #get_global("SpotifyGlobal_0324.html")
     #getCountryTopSongRank(test_spotify_api_db.db, 1, cur, conn)
     #getCountrySpotifyRank(data, cur, conn)
     #getMostPopularArtist(data, cur, conn)
-
 
 if __name__ == '__main__':
     main()
