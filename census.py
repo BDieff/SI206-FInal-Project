@@ -1,7 +1,9 @@
+from lib2to3.pytree import generate_matches
 import os
 import json
 from pkgutil import get_data
 import sqlite3
+from webbrowser import get
 import requests
 import unittest
 
@@ -38,12 +40,26 @@ def json_to_db(data,cur,conn):
         cur.execute("INSERT OR IGNORE INTO census_data (country_id, name,  population, crude_birth_rate, crude_death_rate, life_expectancy, area) VALUES (?,?,?,?,?,?,?)", (var_id, var_name,var_population,var_crude_birth_rate,var_crude_death_rate,var_life_expectancy,area))
     conn.commit()
 
-def data_for_one_country(country, cur, conn):
-    cur.execute(f"SELECT country_id FROM census_data WHERE name = \"{country}\"")
-    res = cur.fetchall()
-    conn.commit()
-    out = [item for t in res for item in t]
-    print(out)
+def get_country_ids(country_list, cur, conn):
+    country_ids_list = []
+    for country in country_list:
+        cur.execute(f"SELECT country_id FROM census_data WHERE name = \"{country}\"")
+        res = cur.fetchall()
+        conn.commit()
+        out = [item for t in res for item in t]
+        country_ids_list.append(out)
+    print(country_ids_list)
+
+def get_country_populations(country_list, cur, conn):
+    country_populations_list = []
+    for country in country_list:
+        cur.execute(f"SELECT population FROM census_data WHERE name = \"{country}\"")
+        res = cur.fetchall()
+        conn.commit()
+        out = [item for t in res for item in t]
+        country_populations_list.append(out)
+    print(country_populations_list)
+
 
 
 
@@ -53,8 +69,10 @@ def main():
     create_table(y,z)
     json_to_db(x,y,z)
     country_list = ["United States", "United Kingdom", "Nigeria", "Mexico", "India"]
-    for country in country_list:
-        data_for_one_country(country, y,z)
+    get_country_ids(country_list,y,z)
+    get_country_populations(country_list,y,z)
+    
+    
     
 
 if __name__ == "__main__":
