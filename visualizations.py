@@ -1,7 +1,7 @@
 from spotify import SpotifyManager
 import pandas as pd
 import census
-import SpotifyGlobal200
+import global200
 import sqlite3
 import os
 import csv
@@ -108,10 +108,10 @@ class TestVisuals(unittest.TestCase):
         country_list = ["United States", "United Kingdom", "Nigeria", "Mexico", "India"]
         self.__class__.country_id_list = census.get_country_ids(country_list,y,z)
         # setup top chart data
-        globaldata = SpotifyGlobal200.get_global("SpotifyGlobal_0324.html")
-        SpotifyGlobal200.get_global("SpotifyGlobal_0324.html")
-        cur, conn = SpotifyGlobal200.setUpDatabase('test_spotify_api.db')
-        SpotifyGlobal200.setUpArtistDatabase(globaldata, cur, conn)
+        globaldata = global200.get_global("SpotifyGlobal_0324.html")
+        global200.get_global("SpotifyGlobal_0324.html")
+        cur, conn = global200.setUpDatabase('test_spotify_api.db')
+        global200.setUpArtistDatabase(globaldata, cur, conn)
         # set up spotify api data
         self.__class__.testDB = SpotifyManager()
         self.testDB.get_songs(self.country_id_list)

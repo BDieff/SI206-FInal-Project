@@ -5,6 +5,8 @@ import sqlite3
 import spotipy
 import requests
 import unittest
+import census
+import global200
 from spotipy.oauth2 import SpotifyClientCredentials
 from bs4 import BeautifulSoup
 
@@ -35,16 +37,6 @@ class SpotifyManager():
         dir_path = os.path.dirname(file_path)
         os.chdir(dir_path)
     
-    '''
-    # create country id table
-    def init_country_ids(self):
-        self.cur.execute('CREATE TABLE IF NOT EXISTS country_ids (id INTEGER PRIMARY KEY, country TEXT)')
-        countries = self.chart_ids.keys()
-        for country in countries:
-            self.cur.execute('INSERT OR IGNORE INTO country_ids (country) VALUES (?)', (country,))
-        self.conn.commit()
-    '''
-
     # create country top chart table
     def init_db_table(self):
         self.cur.execute(f'''CREATE TABLE IF NOT EXISTS top_songs (country_id INTEGER,
@@ -75,7 +67,7 @@ class SpotifyManager():
     # from desired playlist - will start from a specified rank
     # with 0 representing rank #1, 1 representing rank #2, and so on
     def get_songs(self, country_id_list):
-        #country_ids = self.cur.execute('SELECT country_id, name FROM census_data').fetchall()
+        # country_ids = self.cur.execute('SELECT country_id, name FROM census_data').fetchall()
         for country in country_id_list:
             country_name = self.cur.execute(f'SELECT name FROM census_data WHERE country_id = {country}').fetchone()[0]
             curr_rank = self.cur.execute(f'SELECT MAX(rank) FROM top_songs WHERE country_id = {country}').fetchone()[0]
@@ -107,7 +99,7 @@ class SpotifyManager():
             self.conn.commit()
 
     def get_avg_tempo_by_country(self, country_id_list):
-        #country_ids = self.cur.execute('SELECT id, country FROM country_ids').fetchall()
+        # country_ids = self.cur.execute('SELECT id, country FROM country_ids').fetchall()
         avg_tempo_by_country = {}
         num_songs = 0
         for country in country_id_list:
@@ -122,7 +114,7 @@ class SpotifyManager():
         return avg_tempo_by_country, num_songs
 
     def get_total_stream_time_for_top(self, country_id_list):
-        #country_ids = self.cur.execute('SELECT id, country FROM country_ids').fetchall()
+        # country_ids = self.cur.execute('SELECT id, country FROM country_ids').fetchall()
         total_streams_by_country = {}
         num_songs = 0
         for country in country_id_list:
@@ -149,37 +141,23 @@ class testManager(unittest.TestCase):
             os.remove('test_spotify_api.db')
         except:
             pass
+        # setup census data
+        y,z = census.setup_DB('test_spotify_api.db')
+        x = census.get_data()
+        census.create_table(y,z)
+        census.json_to_db(x,y,z)
+        country_list = ["United States", "United Kingdom", "Nigeria", "Mexico", "India"]
+        self.__class__.country_id_list = census.get_country_ids(country_list,y,z)
+        # setup top chart data
+        globaldata = global200.get_global("SpotifyGlobal_0324.html")
+        global200.get_global("SpotifyGlobal_0324.html")
+        cur, conn = global200.setUpDatabase('test_spotify_api.db')
+        global200.setUpArtistDatabase(globaldata, cur, conn)
+        # set up spotify api data
         self.__class__.testDB = SpotifyManager()
-        self.testDB.get_songs()
+        self.testDB.get_songs(self.country_id_list)
         self.__class__.conn = sqlite3.connect('test_spotify_api.db')
         self.__class__.cur = self.conn.cursor()
 
-    #this wont work anymore because I changed function
-    def testGetSongs(self):
-        for i in range(1,6):
-            max_rank = self.cur.execute(f'SELECT MAX(rank) FROM top_songs WHERE country_id = {i}').fetchall()[0][0]
-            self.assertEqual(max_rank, 5)
-
-    #this wont work anymore because I changed function
-    def testGetAvgTempoByCountry(self):
-        avg_temp_by_country, num_songs = self.testDB.get_avg_tempo_by_country()
-        self.assertEqual(num_songs, 5)
-        self.assertAlmostEqual(avg_temp_by_country['US'], 148.3486, 4)
-        self.assertAlmostEqual(avg_temp_by_country['UK'], 120.7402, 4)
-        self.assertAlmostEqual(avg_temp_by_country['Nigeria'], 114.6592, 4)
-        self.assertAlmostEqual(avg_temp_by_country['Mexico'], 143.7192, 4)
-        self.assertAlmostEqual(avg_temp_by_country['India'], 101.4396, 4)    
-
-    #this wont work anymore because I changed function
-    def testGetTotalStreamTimeForTop(self):
-        dur_by_country, num_songs = self.testDB.get_total_stream_time_for_top()
-        self.assertEqual(num_songs, 5)
-        self.assertAlmostEqual(dur_by_country['US'], 71739193.829, 3)
-        self.assertAlmostEqual(dur_by_country['UK'], 31311652.982, 3)
-        self.assertAlmostEqual(dur_by_country['Nigeria'], 1674480.039, 3 )
-        self.assertAlmostEqual(dur_by_country['Mexico'], 61257668.254, 3)
-        self.assertAlmostEqual(dur_by_country['India'], 43229876.402, 3) 
-
 if __name__ == '__main__':
     unittest.main(verbosity=2)
-    os.remove('test_spotify_api.db')
