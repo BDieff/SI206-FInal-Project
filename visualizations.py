@@ -85,6 +85,29 @@ def placement_difference_catplot(country_specific_rank, global_rank):
     sns.swarmplot(x='Country', y='Rank Difference', hue='Song', data=rank_data, size=7)
     lgnd = plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
     plt.savefig('rank_diff.png', bbox_extra_artists=(lgnd,) ,bbox_inches='tight')
+
+def getMostPopularArtist(data, cur, conn):
+    """
+    This function takes in the 'test_spotify_api_db.db', the database cursor, 
+    and the database connection to find the rank of the most popular artist's song from each country. It selects 
+    the country's name, the country's top song name, the song's rank, and the song's artist on the Spotify Global 200 Chart. 
+    
+    The function returns a LIST OF TUPLES. 
+    
+    Each tuple contains (COUNTRY, top SONG NAME, song's artist on Spotify200).
+
+    """
+
+    cur.execute(
+        """
+        SELECT country_ids.country, top_songs.name, SpotifyGlobal200_Artist.artist
+        FROM country_ids
+        JOIN top_songs ON country_ids.id = top_songs.country_id
+        JOIN SpotifyGlobal200_Artist ON top_songs.artist = SpotifyGlobal200_Artist.artist
+        """
+    )
+    results = cur.fetchall()
+    #print(results) 
     
 class TestVisuals(unittest.TestCase):
 
@@ -108,10 +131,10 @@ class TestVisuals(unittest.TestCase):
         country_list = ["United States", "United Kingdom", "Nigeria", "Mexico", "India"]
         self.__class__.country_id_list = census.get_country_ids(country_list,y,z)
         # setup top chart data
-        globaldata = global200.get_global("SpotifyGlobal_0324.html")
-        global200.get_global("SpotifyGlobal_0324.html")
+        BB200Data = global200.get_global()
+        #global200.get_global()
         cur, conn = global200.setUpDatabase('test_spotify_api.db')
-        global200.setUpArtistDatabase(globaldata, cur, conn)
+        global200.setUpArtistDatabase(BB200Data, cur, conn)
         # set up spotify api data
         self.__class__.testDB = SpotifyManager()
         self.testDB.get_songs(self.country_id_list)
