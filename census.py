@@ -3,6 +3,7 @@ import os
 import json
 from pkgutil import get_data
 import sqlite3
+from unicodedata import name
 from webbrowser import get
 import requests
 import unittest
@@ -55,6 +56,16 @@ def get_country_populations(country_list, cur, conn):
         country_populations_list.append(res)
     return country_populations_list
 
+def pop_dict(id_list, cur, conn):
+    name_pop_dict = {}
+    for x in id_list:
+        cur.execute(f"SELECT name, population FROM census_data WHERE country_id = \"{x}\"")
+        res = cur.fetchall()
+        country = (res[0][0])
+        population = (res[0][1])
+        name_pop_dict[country] = population
+    return name_pop_dict
+
 def main():
     y,z = setup_DB("census_data")
     x = get_data()
@@ -63,6 +74,8 @@ def main():
     country_list = ["United States", "United Kingdom", "Nigeria", "Mexico", "India"]
     get_country_ids(country_list,y,z)
     get_country_populations(country_list,y,z)
+    id_list = [209, 68, 148, 142, 92]
+    pop_dict(id_list, y, z)
     
     
     
