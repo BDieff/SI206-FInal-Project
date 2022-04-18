@@ -22,8 +22,14 @@ def get_global200():
         song_name = chart[i].title
         song_rank = chart[i].rank 
         artist = chart[i].artist
-        globaldata.append((song_rank, song_name, artist))
-        #print(globaldata)
+        #print(artist)
+        if ',' in artist: 
+            artist = artist.split(', ')[0].strip()
+        if re.search('(.+) [&xX] .+', artist):
+            artist = re.findall('(.+) [&xX] .+', artist)[0].strip()
+        if re.search('(.*)[Ff]eaturing', artist): 
+            artist = re.findall('(.*)[Ff]eaturing', artist)[0].strip()
+        globaldata.append((song_name, artist, song_rank))
     return globaldata
 
 def setUpDatabase(db_name):
@@ -55,9 +61,9 @@ def setUpArtistDatabase(chart_data, cur, conn):
     for item in chart_data[0:25]:
         count += 1 
         #print(item)
-        song_rank = item[0]
-        song_name = item[1]
-        artist_name = item[2]
+        song_rank = item[2]
+        song_name = item[0]
+        artist_name = item[1]
 
         cur.execute(
             """
