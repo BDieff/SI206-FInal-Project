@@ -28,7 +28,6 @@ class SpotifyManager():
         self.conn = sqlite3.connect(db_name)
         self.cur = self.conn.cursor()
         # create country top chart tables
-        #self.init_country_ids()
         self.init_db_table()
 
     # change current directory to file directory

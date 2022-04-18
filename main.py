@@ -8,10 +8,10 @@ import visualizations
 # final_project.db is the dtabase name when we connect with sqlite3
 
 if __name__ == '__main__':
-    try:
-        os.remove('final_project.db')
-    except:
-        pass
+    #try:
+        #os.remove('final_project.db')
+    #except:
+        #pass
     # setting up db with data from census api
     y,z = census.setup_DB('final_project.db')
     x = census.get_data()
