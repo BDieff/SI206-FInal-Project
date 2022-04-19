@@ -1,9 +1,5 @@
-from spotify import SpotifyManager
 import pandas as pd
-import census
-import global200
 import sqlite3
-import os
 import csv
 import unittest
 import matplotlib.pyplot as plt
@@ -86,57 +82,20 @@ def placement_difference_catplot(country_specific_rank, global_rank):
     lgnd = plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
     plt.savefig('rank_diff.png', bbox_extra_artists=(lgnd,) ,bbox_inches='tight')
 
-    
 class TestVisuals(unittest.TestCase):
 
-    isSetUp = False
-
-    def setUp(self):
-        if not self.isSetUp:
-            self.setupClass()
-            self.__class__.isSetUp = True
-
-    def setupClass(self):
-        try:
-            os.remove('test_spotify_api.db')
-        except:
-            pass
-        # setup census data
-        y,z = census.setup_DB('test_spotify_api.db')
-        x = census.get_data()
-        census.create_table(y,z)
-        census.json_to_db(x,y,z)
-        country_list = ["United States", "United Kingdom", "Nigeria", "Mexico", "India"]
-        self.__class__.country_id_list = census.get_country_ids(country_list,y,z)
-        # setup top chart data
-        BB200Data = global200.get_global200()
-        global200.get_global200()
-        cur, conn = global200.setUpDatabase('final_project.db')
-        global200.setUpArtistDatabase(BB200Data, cur, conn)
-        # globaldata = global200.get_global("SpotifyGlobal_0324.html")
-        # global200.get_global("SpotifyGlobal_0324.html")
-        # cur, conn = global200.setUpDatabase('test_spotify_api.db')
-        # global200.setUpArtistDatabase(globaldata, cur, conn)
-        # set up spotify api data
-        self.__class__.testDB = SpotifyManager()
-        self.testDB.get_songs(self.country_id_list)
-        self.__class__.conn = sqlite3.connect('test_spotify_api.db')
-        self.__class__.cur = self.conn.cursor()
-
     def testTempoHbar(self):
-        tempo_dict, num_songs = self.testDB.get_avg_tempo_by_country(self.country_id_list)
+        num_songs = 5
+        tempo_dict = {'Nigeria':110, 'Mexico':130, 'India':99}
         avg_temp_hbar(tempo_dict, num_songs)
 
     def testMinutesHbar(self):
+        num_songs = 5
         population_dict = {'United States': 331893745, 'Mexico': 131333546, 'United Kingdom': 68515161, 'Nigeria': 215189366, 'India': 1404050703}
-        minutes_by_country, num_songs = self.testDB.get_total_stream_time_for_top(self.country_id_list)
+        minutes_by_country = {'United States': 0.04, 'Mexico': 0.1, 'United Kingdom': 0.08, 'Nigeria': 0.01, 'India': 0.03}
         minutes_per_person_hbar(minutes_by_country, population_dict, num_songs)
 
     def testRankDiffCatPlot(self):
-        try:
-            os.remove('rank_diff.png')
-        except:
-            pass
         top_fifteen_daily = {
             "As It Was":1,
             "First Class":2,
