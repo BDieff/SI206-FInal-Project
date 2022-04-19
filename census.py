@@ -8,7 +8,6 @@ from webbrowser import get
 import requests
 import unittest
 
-from sqlalchemy import outerjoin
 
 def setup_DB(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
