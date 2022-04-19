@@ -8,6 +8,8 @@ from webbrowser import get
 import requests
 import unittest
 
+from sqlalchemy import outerjoin
+
 def setup_DB(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_name)
@@ -38,6 +40,7 @@ def json_to_db(data,cur,conn):
         area = item[5]
         item_id += 1
         cur.execute("INSERT OR IGNORE INTO census_data (country_id, name,  population, crude_birth_rate, crude_death_rate, life_expectancy, area) VALUES (?,?,?,?,?,?,?)", (var_id, var_name,var_population,var_crude_birth_rate,var_crude_death_rate,var_life_expectancy,area))
+        
     conn.commit()
 
 def get_country_ids(country_list, cur, conn):
@@ -46,6 +49,7 @@ def get_country_ids(country_list, cur, conn):
         cur.execute(f"SELECT country_id FROM census_data WHERE name = \"{country}\"")
         res = cur.fetchall()[0][0]
         country_ids_list.append(res)
+    conn.commit()
     return country_ids_list
 
 def get_country_populations(country_list, cur, conn):
@@ -54,6 +58,7 @@ def get_country_populations(country_list, cur, conn):
         cur.execute(f"SELECT population FROM census_data WHERE name = \"{country}\"")
         res = cur.fetchall()[0][0]
         country_populations_list.append(res)
+    conn.commit()
     return country_populations_list
 
 def pop_dict(id_list, cur, conn):
@@ -64,7 +69,39 @@ def pop_dict(id_list, cur, conn):
         country = (res[0][0])
         population = (res[0][1])
         name_pop_dict[country] = population
+    conn.commit()
     return name_pop_dict
+
+def extra_credit(y,z):
+    base_url = "https://api.worldbank.org/v2/country/all/indicator/NY.GDP.MKTP.CD?date=2020&format=json"
+    data1 = requests.get(base_url)
+    data2 = data1.text
+    data3 = json.loads(data2)
+    y.execute('CREATE TABLE IF NOT EXISTS mean_consumption (id INTEGER PRIMARY KEY, country TEXT, gdp INTEGER)')
+    z.commit()
+    item_id = 0
+    for item in data3[1]:
+        var_id = item_id
+        var_country = item["country"]["value"]
+        var_gdp = item["value"]
+        item_id += 1
+        y.execute("INSERT OR IGNORE INTO mean_consumption (id, country, gdp) VALUES (?,?,?)", (var_id, var_country,var_gdp,))
+    z.commit()
+    y.execute("SELECT gdp FROM mean_consumption")
+    res = y.fetchall()
+    total = 0
+    count = 0
+    for x in res:
+        total_temp = x[0]
+        if total_temp:
+            total += total_temp
+            count += 1
+    average_gdp = total / count
+    return average_gdp
+
+
+
+
 
 def main():
     y,z = setup_DB("census_data")
@@ -76,6 +113,11 @@ def main():
     get_country_populations(country_list,y,z)
     id_list = [209, 68, 148, 142, 92]
     pop_dict(id_list, y, z)
+    a,b = setup_DB("mean_consumption")
+    final = extra_credit(a,b)
+    print(final)
+
+    
     
     
     
