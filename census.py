@@ -28,19 +28,26 @@ def create_table(cur,conn):
     conn.commit()
 
 def json_to_db(data,cur,conn):
-    item_id = 0
-    for item in data[1:]:
-        var_id = item_id
+    try:
+        cur.execute('SELECT country_id FROM census_data WHERE country_id  = (SELECT MAX(country_id) FROM census_data)')
+        start = cur.fetchone()
+        start = start[0]
+    except:
+        start= 0
+    item_id = 1
+    for item in data[start:start+25]:
+        var_id = item_id+start
         var_name = item[0]
         var_population = item[1]
         var_crude_birth_rate = item[2]
         var_crude_death_rate = item[3]
         var_life_expectancy = item[4]
         area = item[5]
-        item_id += 1
         cur.execute("INSERT OR IGNORE INTO census_data (country_id, name,  population, crude_birth_rate, crude_death_rate, life_expectancy, area) VALUES (?,?,?,?,?,?,?)", (var_id, var_name,var_population,var_crude_birth_rate,var_crude_death_rate,var_life_expectancy,area))
-        
+        item_id += 1
     conn.commit()
+
+
 
 def get_country_ids(country_list, cur, conn):
     country_ids_list = []
@@ -115,6 +122,7 @@ def main():
     a,b = setup_DB("mean_consumption")
     final = extra_credit(a,b)
     print(final)
+
 
     
     
