@@ -17,7 +17,10 @@ def avg_temp_hbar(data_dict, songs_per_country):
     '''
     countries = list(data_dict.keys())
     average_tempo = list(data_dict.values())
-
+    with open('avg_tempo_by_country.txt', 'w') as fh:
+        fh.write(f"Average Tempo for Each Country's Top {songs_per_country} Songs on Spotify\n")
+        for country in countries:
+            fh.write(f'{country}: {data_dict[country]} BPM on Average\n')
     fig, ax = plt.subplots()
     ax.barh(countries, average_tempo, color='green')
     ax.autoscale_view()
@@ -45,6 +48,10 @@ def minutes_per_person_hbar(minutes_by_country, population, songs_per_country):
         time_per_person_by_country[country] = minutes_total/country_pop
     fig, ax = plt.subplots()
     countries_axis = list(time_per_person_by_country.keys())
+    with open('mins_per_person_by_country.txt', 'w') as fh:
+        fh.write(f"Minutes per Person Streamed on Spotify for Each Country's Top {songs_per_country} Songs\n")
+        for country in countries:
+            fh.write(f'{country}: {time_per_person_by_country[country]} minutes per person\n')
     minutes_per_person = list(time_per_person_by_country.values())
     ax.barh(countries_axis, minutes_per_person, color='green')
     ax.autoscale_view()
@@ -92,7 +99,7 @@ class TestVisuals(unittest.TestCase):
     def testMinutesHbar(self):
         num_songs = 5
         population_dict = {'United States': 331893745, 'Mexico': 131333546, 'United Kingdom': 68515161, 'Nigeria': 215189366, 'India': 1404050703}
-        minutes_by_country = {'United States': 0.04, 'Mexico': 0.1, 'United Kingdom': 0.08, 'Nigeria': 0.01, 'India': 0.03}
+        minutes_by_country = {'United States': 10292938871, 'Mexico': 2723652, 'United Kingdom': 12381317236, 'Nigeria': 237276562, 'India': 1231312345}
         minutes_per_person_hbar(minutes_by_country, population_dict, num_songs)
 
     def testRankDiffCatPlot(self):
