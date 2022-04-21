@@ -105,7 +105,14 @@ def extra_credit(y,z):
     average_gdp = total / count
     return average_gdp
 
+def db_full_bool(cur):
+    cur.execute('SELECT country_id FROM census_data WHERE country_id  = (SELECT MAX(country_id) FROM census_data)')
+    start = cur.fetchone()
+    start = start[0]
+    if start >= 200:
+        return True
 
+        
 
 
 
@@ -122,6 +129,7 @@ def main():
     a,b = setup_DB("mean_consumption")
     final = extra_credit(a,b)
     print(final)
+    db_full_bool(y)
 
 
     
