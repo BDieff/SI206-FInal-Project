@@ -42,16 +42,6 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
-def api_limit(cur, conn):
-    cur.execute(
-        """
-        SELECT MAX(id) FROM SpotifyGlobal200_Artist 
-        """
-    )
-    max = cur.fetchone()        # RETURNS 23
-    if max[0] <= 25:
-        return True
-
 def setUpArtistDatabase(chart_data, cur, conn):
     """
     Load all data from the function 'get_global' into a table called 'SpotifyGlobal200'
@@ -102,6 +92,15 @@ def setUpArtistDatabase(chart_data, cur, conn):
     
     conn.commit()
     
+def api_limit(cur, conn):
+    cur.execute(
+        """
+        SELECT MAX(id) FROM SpotifyGlobal200_Artist 
+        """
+    )
+    max = cur.fetchone()        # RETURNS 23
+    if max[0] <= 25:
+        return True
 
 def getCountryTopSongRank(data, rank, cur, conn):
     """
@@ -182,9 +181,8 @@ def getMostPopularArtist(data, cur, conn):
 def main():
     BB200data = get_global200()
     cur, conn = setUpDatabase('final_project.db')
-    api_limit(cur, conn)
     setUpArtistDatabase(BB200data, cur, conn)
-    
+    api_limit(cur, conn)
 
 if __name__ == '__main__':
     main()
