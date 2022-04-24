@@ -126,26 +126,25 @@ def getMostPopularArtist(data, cur, conn):
     """
 
     cur.execute(
-        """
-        SELECT census_data.name, SpotifyGlobal200_Song.song_name, SpotifyGlobal200_Artist.artist
-        FROM census_data
-        JOIN top_songs ON census_data.country_id = top_songs.country_id
-        JOIN SpotifyGlobal200_Artist ON top_songs.artist_id = SpotifyGlobal200_Artist.id
-        """
+        '''
+        SELECT SpotifyGlobal200_Artist.artist, COUNT(SpotifyGlobal200_Song.artist_id) AS cnt FROM SpotifyGlobal200_Song
+        JOIN SpotifyGlobal200_Artist
+        ON SpotifyGlobal200_Artist.id = SpotifyGlobal200_Song.artist_id
+        GROUP BY artist_id
+        ORDER BY cnt DESC;
+        '''
 
     )
-    results = cur.fetchall()
-    print(results)
-
+    results = cur.fetchall()[0:5]
+    #print(results)
     y_axis = [str(tup[0]) for tup in results]        
-    x_axis = [tup[-1] for tup in results]          
-    
-    plt.barh(y_axis, x_axis)
-    plt.title('Most popular artist')
-    plt.ylabel('Country')
-    plt.xlabel('Frequency')
-    plt.xticks(range(0,6,1))
+    x_axis = [tup[1] for tup in results]          
+    fig, ax = plt.subplots()
+    ax.barh(y_axis, x_axis)
+    ax.set(ylabel='Artist', xlabel='Frequency', title='Most popular artists on Billboard 200')
+    plt.tight_layout()
     plt.show()
+    fig.savefig('most_popular_artist_bboard.png', bbox_inches='tight')
 
 def main():
     BB200data = get_global200()
