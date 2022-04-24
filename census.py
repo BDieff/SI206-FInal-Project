@@ -116,20 +116,6 @@ def db_full_bool(cur):
 
 
 
-def main():
-    y,z = setup_DB("census_data")
-    x = get_data()
-    create_table(y,z)
-    json_to_db(x,y,z)
-    country_list = ["United States", "United Kingdom", "Nigeria", "Mexico", "India"]
-    get_country_ids(country_list,y,z)
-    get_country_populations(country_list,y,z)
-    id_list = [211, 70, 150, 144, 94] 
-    pop_dict(id_list, y, z)
-    a,b = setup_DB("mean_consumption")
-    final = extra_credit(a,b)
-    print(final)
-    db_full_bool(y)
 
 
     
@@ -137,6 +123,3 @@ def main():
     
     
 
-if __name__ == "__main__":
-    main()
-    unittest.main(verbosity=2)
