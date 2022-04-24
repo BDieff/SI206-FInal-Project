@@ -24,5 +24,7 @@ if __name__ == '__main__':
         country_id_list = census.get_country_ids(country_list,y,z)
         spotify_api_mngr = spotify.SpotifyManager('final_project.db')
         spotify_api_mngr.get_songs(country_id_list)
-    
+    #extra credit
+    final = census.extra_credit(y,z)
+    print(final)
 
