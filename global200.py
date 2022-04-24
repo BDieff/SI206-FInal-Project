@@ -113,58 +113,6 @@ def api_limit(cur, conn):
         print(True)
         return True
 
-def getCountryTopSongRank(data, rank, cur, conn):
-    """
-    This function takes in the 'test_spotify_api_db.db', song rank of 1, the database cursor, 
-    and the database connection. It selects the country's name, the country's top song rank, and the country's
-    top song name. 
-    
-    The function returns a LIST OF TUPLES. 
-    
-    Each tuple contains (the COUNTRY, country's top song RANK, the country's top SONG NAME).
-
-    """
-    cur.execute(
-        """
-        SELECT country_ids.country, top_songs.rank, top_songs.name 
-        FROM country_ids
-        JOIN top_songs ON country_ids.id = top_songs.country_id
-        WHERE top_songs.rank = ?
-
-        """, 
-        
-        (rank,)
-    )
-    
-    results = cur.fetchall()
-    #print(results)
-    pass
-    
-def getCountrySpotifyRank(data, cur, conn):
-    """
-    This function takes in the 'test_spotify_api_db.db', the database cursor, 
-    and the database connection. It selects the country's name, the country's top song rank, and the country's
-    top song name, and the song's rank on the Spotify Global 200 Chart. 
-    
-    The function returns a LIST OF TUPLES. 
-    
-    Each tuple contains (COUNTRY, country's top song RANK, top SONG NAME, country's top song RANK on Spotify200).
-
-    """
-
-    cur.execute(
-        """
-        SELECT country_ids.country, top_songs.rank, top_songs.name, SpotifyGlobal200_Song.rank 
-        FROM country_ids
-        JOIN top_songs ON country_ids.id = top_songs.country_id
-        JOIN SpotifyGlobal200_Song ON top_songs.name = SpotifyGlobal200_Song.song_name
-        """
-
-    )
-    results = cur.fetchall()
-    #print(results)
-    pass
-
 def getMostPopularArtist(data, cur, conn):
     """
     This function takes in the 'test_spotify_api_db.db', the database cursor, 
@@ -179,22 +127,32 @@ def getMostPopularArtist(data, cur, conn):
 
     cur.execute(
         """
-        SELECT country_ids.country, top_songs.name, SpotifyGlobal200_Artist.artist
-        FROM country_ids
-        JOIN top_songs ON country_ids.id = top_songs.country_id
-        JOIN SpotifyGlobal200_Artist ON top_songs.artist = SpotifyGlobal200_Artist.artist
+        SELECT census_data.name, SpotifyGlobal200_Song.song_name, SpotifyGlobal200_Artist.artist
+        FROM census_data
+        JOIN top_songs ON census_data.country_id = top_songs.country_id
+        JOIN SpotifyGlobal200_Artist ON top_songs.artist_id = SpotifyGlobal200_Artist.id
         """
+
     )
     results = cur.fetchall()
-    #print(results)
-    pass
+    print(results)
+
+    y_axis = [str(tup[0]) for tup in results]        
+    x_axis = [tup[-1] for tup in results]          
+    
+    plt.barh(y_axis, x_axis)
+    plt.title('Most popular artist')
+    plt.ylabel('Country')
+    plt.xlabel('Frequency')
+    plt.xticks(range(0,6,1))
+    plt.show()
 
 def main():
     BB200data = get_global200()
     cur, conn = setUpDatabase('final_project.db')
     setUpArtistDatabase(BB200data, cur, conn)
     api_limit(cur, conn)
-    #getCountryTopSongRank(data, rank, cur, conn)
+    getMostPopularArtist(BB200data, cur, conn)
 
 if __name__ == '__main__':
     main()
