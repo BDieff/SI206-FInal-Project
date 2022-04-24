@@ -109,7 +109,7 @@ def db_full_bool(cur):
     cur.execute('SELECT country_id FROM census_data WHERE country_id  = (SELECT MAX(country_id) FROM census_data)')
     start = cur.fetchone()
     start = start[0]
-    if start >= 200:
+    if start >= 209:
         return True
 
         
