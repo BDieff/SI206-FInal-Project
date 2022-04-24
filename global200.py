@@ -132,16 +132,27 @@ def getMostPopularArtist(data, cur, conn):
         JOIN top_songs ON census_data.country_id = top_songs.country_id
         JOIN SpotifyGlobal200_Artist ON top_songs.artist_id = SpotifyGlobal200_Artist.id
         """
+
     )
     results = cur.fetchall()
     print(results)
+
+    y_axis = [str(tup[0]) for tup in results]        
+    x_axis = [tup[-1] for tup in results]          
+    
+    plt.barh(y_axis, x_axis)
+    plt.title('Most popular artist')
+    plt.ylabel('Country')
+    plt.xlabel('Frequency')
+    plt.xticks(range(0,6,1))
+    plt.show()
 
 def main():
     BB200data = get_global200()
     cur, conn = setUpDatabase('final_project.db')
     setUpArtistDatabase(BB200data, cur, conn)
     api_limit(cur, conn)
-    #getCountryTopSongRank(data, rank, cur, conn)
+    getMostPopularArtist(BB200data, cur, conn)
 
 if __name__ == '__main__':
     main()
