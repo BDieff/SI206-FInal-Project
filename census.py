@@ -124,7 +124,7 @@ def main():
     country_list = ["United States", "United Kingdom", "Nigeria", "Mexico", "India"]
     get_country_ids(country_list,y,z)
     get_country_populations(country_list,y,z)
-    id_list = [209, 68, 148, 142, 92]
+    id_list = [211, 70, 150, 144, 94] 
     pop_dict(id_list, y, z)
     a,b = setup_DB("mean_consumption")
     final = extra_credit(a,b)
