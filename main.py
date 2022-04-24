@@ -17,8 +17,9 @@ if __name__ == '__main__':
     BB200data = global200.get_global200()
     cur, conn = global200.setUpDatabase('final_project.db')
     global200.setUpArtistDatabase(BB200data, cur, conn)
+    pulled_all_from_bboard = global200.api_limit(cur,conn)
     # adding tables to db with top x song data from spotify api
-    if pulled_all_from_census:
+    if pulled_all_from_census and pulled_all_from_bboard:
         country_list = ["United States", "United Kingdom", "Nigeria", "Mexico", "India"]
         country_id_list = census.get_country_ids(country_list,y,z)
         spotify_api_mngr = spotify.SpotifyManager('final_project.db')
