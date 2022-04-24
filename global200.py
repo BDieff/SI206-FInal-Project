@@ -47,19 +47,30 @@ def setUpArtistDatabase(chart_data, cur, conn):
     Load all data from the function 'get_global' into a table called 'SpotifyGlobal200'
     giving the artist and song name a unique ID with the following columns:
     
-    # Artist (datatype: TEXT and PRIMARY KEY); if more than one artist for a song, grab ONLY the first artist
-    # artist_id (datatype: INTEGER)
-    # Song (datatype: TEXT)
-    # song_id (datatype: INTEGER)
+    - Artist (datatype: TEXT and PRIMARY KEY); if more than one artist for a song, grab ONLY the first artist
+    - artist_id (datatype: INTEGER)
+    - Song (datatype: TEXT)
+    - song_id (datatype: INTEGER)
     """
     cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Artist (id INTEGER PRIMARY KEY UNIQUE, artist TEXT UNIQUE)")
     cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Song (song_id INTEGER PRIMARY KEY UNIQUE, artist_id INTEGER, song_rank INTEGER UNIQUE, song_name TEXT UNIQUE)")
     
-    # COUNT FOR SONG TABLE:
-    # AUTO INCREMENT INTEGER 
-    count = 0
-    for item in chart_data[0:25]:
-        count += 1 
+    try:
+        cur.execute(
+            """
+            SELECT song_id 
+            FROM SpotifyGlobal200_Song
+            WHERE song_id = (SELECT MAX(song_id) FROM SpotifyGlobal200_Song)       
+            """
+        )
+    # SELECTS THE MAX SONG_ID AND ADDS BY 25 (RUN 8X TO GET TO 200)
+        start = cur.fetchone()
+        start = start[0]
+        print(start)        
+    except:
+        start = 0
+
+    for item in chart_data[start:start+25]:
         #print(item)
         song_rank = item[2]
         song_name = item[0]
@@ -87,19 +98,19 @@ def setUpArtistDatabase(chart_data, cur, conn):
             VALUES (?, ?, ?)
             """, 
 
-            (artist_id, count, song_name)
+            (artist_id, song_rank, song_name)
         )
-    
     conn.commit()
     
 def api_limit(cur, conn):
     cur.execute(
         """
-        SELECT MAX(id) FROM SpotifyGlobal200_Artist 
+        SELECT MAX(song_id) FROM SpotifyGlobal200_Song
         """
     )
-    max = cur.fetchone()        # RETURNS 23
-    if max[0] <= 25:
+    max = cur.fetchone()        
+    if max[0] >= 200:
+        print(True)
         return True
 
 def getCountryTopSongRank(data, rank, cur, conn):
@@ -183,6 +194,7 @@ def main():
     cur, conn = setUpDatabase('final_project.db')
     setUpArtistDatabase(BB200data, cur, conn)
     api_limit(cur, conn)
+    #getCountryTopSongRank(data, rank, cur, conn)
 
 if __name__ == '__main__':
     main()
