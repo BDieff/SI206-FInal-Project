@@ -113,7 +113,7 @@ def api_limit(cur, conn):
         print(True)
         return True
 
-def getMostPopularArtist(data, cur, conn):
+def getMostPopularArtist(cur, conn):
     """
     This function takes in the 'test_spotify_api_db.db', the database cursor, 
     and the database connection to find the rank of the most popular artist's song from each country. It selects 
