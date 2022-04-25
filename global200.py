@@ -66,7 +66,7 @@ def setUpArtistDatabase(chart_data, cur, conn):
     # SELECTS THE MAX SONG_ID AND ADDS BY 25 (RUN 8X TO GET TO 200)
         start = cur.fetchone()
         start = start[0]
-        print(start)        
+        #print(start)        
     except:
         start = 0
 
@@ -110,7 +110,7 @@ def api_limit(cur, conn):
     )
     max = cur.fetchone()        
     if max[0] >= 200:
-        print(True)
+        #print(True)
         return True
 
 def getMostPopularArtist(cur, conn):
