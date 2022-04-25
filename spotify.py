@@ -10,7 +10,7 @@ import global200
 from spotipy.oauth2 import SpotifyClientCredentials
 from bs4 import BeautifulSoup
 
-# This file should be run after census.py and SpotifyGlobal200.py
+# This file should be run after census.py and global200.py
 
 class SpotifyManager():
 
@@ -81,13 +81,13 @@ class SpotifyManager():
                 name = song['track']['name']
                 # adds into artist table and creates id if not already there
                 artist = song['track']['artists'][0]['name']
-                self.cur.execute(f"INSERT OR IGNORE INTO SpotifyGlobal200_Artist (artist) VALUES ('{artist}')")
+                self.cur.execute(f"INSERT OR IGNORE INTO BillboardGlobal200_Artist (artist) VALUES ('{artist}')")
                 self.conn.commit()
-                artist_id = self.cur.execute(f"SELECT id FROM SpotifyGlobal200_Artist WHERE artist = '{artist}'").fetchone()[0]
+                artist_id = self.cur.execute(f"SELECT id FROM BillboardGlobal200_Artist WHERE artist = '{artist}'").fetchone()[0]
                 # adds into song table and creates id if not already there
-                self.cur.execute(f"INSERT OR IGNORE INTO SpotifyGlobal200_Song (song_name, artist_id) VALUES (?,?)", (name,artist_id))
+                self.cur.execute(f"INSERT OR IGNORE INTO BillboardGlobal200_Song (song_name, artist_id) VALUES (?,?)", (name,artist_id))
                 self.conn.commit()
-                name_id = self.cur.execute(f"SELECT song_id FROM SpotifyGlobal200_Song WHERE song_name = ?", (name,)).fetchone()[0]
+                name_id = self.cur.execute(f"SELECT song_id FROM BillboardGlobal200_Song WHERE song_name = ?", (name,)).fetchone()[0]
                 popularity = song['track']['popularity']
                 audio_analysis = self.spotify.audio_analysis(id)
                 length = audio_analysis['track']['duration']

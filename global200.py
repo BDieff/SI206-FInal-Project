@@ -44,7 +44,7 @@ def setUpDatabase(db_name):
 
 def setUpArtistDatabase(chart_data, cur, conn):
     """
-    Load all data from the function 'get_global' into a table called 'SpotifyGlobal200'
+    Load all data from the function 'get_global' into a table called 'BillboardGlobal200'
     giving the artist and song name a unique ID with the following columns:
     
     - Artist (datatype: TEXT and PRIMARY KEY); if more than one artist for a song, grab ONLY the first artist
@@ -52,15 +52,15 @@ def setUpArtistDatabase(chart_data, cur, conn):
     - Song (datatype: TEXT)
     - song_id (datatype: INTEGER)
     """
-    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Artist (id INTEGER PRIMARY KEY UNIQUE, artist TEXT UNIQUE)")
-    cur.execute("CREATE TABLE IF NOT EXISTS SpotifyGlobal200_Song (song_id INTEGER PRIMARY KEY UNIQUE, artist_id INTEGER, song_rank INTEGER UNIQUE, song_name TEXT UNIQUE)")
+    cur.execute("CREATE TABLE IF NOT EXISTS BillboardGlobal200_Artist (id INTEGER PRIMARY KEY UNIQUE, artist TEXT UNIQUE)")
+    cur.execute("CREATE TABLE IF NOT EXISTS BillboardGlobal200_Song (song_id INTEGER PRIMARY KEY UNIQUE, artist_id INTEGER, song_rank INTEGER UNIQUE, song_name TEXT UNIQUE)")
     
     try:
         cur.execute(
             """
             SELECT song_id 
-            FROM SpotifyGlobal200_Song
-            WHERE song_id = (SELECT MAX(song_id) FROM SpotifyGlobal200_Song)       
+            FROM BillboardGlobal200_Song
+            WHERE song_id = (SELECT MAX(song_id) FROM BillboardGlobal200_Song)       
             """
         )
     # SELECTS THE MAX SONG_ID AND ADDS BY 25 (RUN 8X TO GET TO 200)
@@ -78,7 +78,7 @@ def setUpArtistDatabase(chart_data, cur, conn):
 
         cur.execute(
             """
-            INSERT OR IGNORE INTO SpotifyGlobal200_Artist (artist)
+            INSERT OR IGNORE INTO BillboardGlobal200_Artist (artist)
             VALUES (?)
             """, 
 
@@ -87,14 +87,14 @@ def setUpArtistDatabase(chart_data, cur, conn):
 
         artist_id = cur.execute(
             f'''
-            SELECT id FROM SpotifyGlobal200_Artist 
+            SELECT id FROM BillboardGlobal200_Artist 
             WHERE artist = "{artist_name}"
             '''
         ).fetchone()[0]
         
         cur.execute(
             """
-            INSERT OR IGNORE INTO SpotifyGlobal200_Song (artist_id, song_rank, song_name)
+            INSERT OR IGNORE INTO BillboardGlobal200_Song (artist_id, song_rank, song_name)
             VALUES (?, ?, ?)
             """, 
 
@@ -105,7 +105,7 @@ def setUpArtistDatabase(chart_data, cur, conn):
 def api_limit(cur, conn):
     cur.execute(
         """
-        SELECT MAX(song_id) FROM SpotifyGlobal200_Song
+        SELECT MAX(song_id) FROM BillboardGlobal200_Song
         """
     )
     max = cur.fetchone()        
@@ -115,21 +115,15 @@ def api_limit(cur, conn):
 
 def getMostPopularArtist(cur, conn):
     """
-    This function takes in the 'test_spotify_api_db.db', the database cursor, 
-    and the database connection to find the rank of the most popular artist's song from each country. It selects 
-    the country's name, the country's top song name, the song's rank, and the song's artist on the Spotify Global 200 Chart. 
-    
-    The function returns a LIST OF TUPLES. 
-    
-    Each tuple contains (COUNTRY, top SONG NAME, song's artist on Spotify200).
-
+    This function takes in the database cursor, 
+    and the database connection to find top 5 most popular artists on the Billboard Global 200.
     """
 
     cur.execute(
         '''
-        SELECT SpotifyGlobal200_Artist.artist, COUNT(SpotifyGlobal200_Song.artist_id) AS cnt FROM SpotifyGlobal200_Song
-        JOIN SpotifyGlobal200_Artist
-        ON SpotifyGlobal200_Artist.id = SpotifyGlobal200_Song.artist_id
+        SELECT BillboardGlobal200.artist, COUNT(BillboardGlobal200_Song.artist_id) AS cnt FROM BillboardGlobal200_Song
+        JOIN BillboardGlobal200_Artist
+        ON BillboardGlobal200_Artist.id = BillboardGlobal200_Song.artist_id
         GROUP BY artist_id
         ORDER BY cnt DESC;
         '''
