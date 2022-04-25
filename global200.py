@@ -121,7 +121,7 @@ def getMostPopularArtist(cur, conn):
 
     cur.execute(
         '''
-        SELECT BillboardGlobal200.artist, COUNT(BillboardGlobal200_Song.artist_id) AS cnt FROM BillboardGlobal200_Song
+        SELECT BillboardGlobal200_Artist.artist, COUNT(BillboardGlobal200_Song.artist_id) AS cnt FROM BillboardGlobal200_Song
         JOIN BillboardGlobal200_Artist
         ON BillboardGlobal200_Artist.id = BillboardGlobal200_Song.artist_id
         GROUP BY artist_id
@@ -134,7 +134,7 @@ def getMostPopularArtist(cur, conn):
     y_axis = [str(tup[0]) for tup in results]        
     x_axis = [tup[1] for tup in results]          
     fig, ax = plt.subplots()
-    ax.barh(y_axis, x_axis)
+    ax.barh(y_axis, x_axis, color='green')
     ax.set(ylabel='Artist', xlabel='Frequency', title='Most popular artists on Billboard 200')
     plt.tight_layout()
     plt.show()
@@ -145,7 +145,7 @@ def main():
     cur, conn = setUpDatabase('final_project.db')
     setUpArtistDatabase(BB200data, cur, conn)
     api_limit(cur, conn)
-    getMostPopularArtist(BB200data, cur, conn)
+    getMostPopularArtist(cur, conn)
 
 if __name__ == '__main__':
     main()
