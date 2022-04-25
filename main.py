@@ -35,10 +35,13 @@ if __name__ == '__main__':
             country_pop_dict = census.pop_dict(country_id_list, y, z)
             listen_time_dict, num_songs_listen_time = spotify_api_mngr.get_total_stream_time_for_top(country_id_list)
             visualizations.minutes_per_person_hbar(listen_time_dict, country_pop_dict, num_songs_listen_time)
-            #visualizations.last_visualization
+            global200.getMostPopularArtist(bbcur, bbconn)
+            #extra credit
+            final = census.extra_credit(y,z)
+            print(final)
         else:
             print('Not enough data pulled from Spotify Api yet - please run again...')
     else:
         print('Not enough data to pull from Spotify Api yet - please run again...')
-    
+
 
