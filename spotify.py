@@ -16,8 +16,8 @@ class SpotifyManager():
 
     def __init__(self, db_name='test_spotify_api.db', json_file='country_top_charts.json'):
         # api key information 
-        CLIENT_ID = 'c126e9db4b244678b224ad4d6ba4477c'
-        CLIENT_SECRET = '713cc4c51d1042aeb6e08d58791b5fac'
+        CLIENT_ID = 'YOUR CLIENT ID'
+        CLIENT_SECRET = 'YOUR CLIENT SECRET'
         # create spotipy instance
         self.spotify = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(CLIENT_ID, CLIENT_SECRET))
         # get charts ids by country
